@@ -1,0 +1,21 @@
+# Local/vendor reference package (about 2 GB; keep outside the public repo)
+_waveshare_ePaper_tmp/
+
+# Python cache and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Generated office/report outputs
+*.docx
+*.pdf
+*.doc
+
+# Local editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
