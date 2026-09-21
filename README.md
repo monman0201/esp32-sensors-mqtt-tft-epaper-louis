@@ -69,6 +69,16 @@ louis/class305/ctrl/rled
 
 上述腳本使用 `python-docx` 與 Pillow 產生或處理報告文件；執行前請依本機路徑調整腳本中的 `ROOT`、圖片與報告來源路徑。
 
+## Arduino 範例專案
+
+本 repository 已依學習進度整理 31 個獨立 ESP32 sketch，使用編號資料夾管理，方便由基礎範例一路閱讀到整合系統：
+
+`01_hello` → `02_RGLED` → `08_OLED` → `14_DHT_OLED_RGBLED` → `23_dht_light_oled_thingspeak` → `25_dht_line` → `27_mqtt_ctrl` → `32_ili_mqtt_ctrl_page` → `35_epaper_mqtt`
+
+完整清單與每個範例的功能說明請參閱 [`projects/README.md`](projects/README.md)；線上展示網站也提供可直接開啟的[範例專案目錄](https://monman0201.github.io/esp32-sensors-mqtt-tft-epaper-louis/projects.html)。
+
+公開版本已將 Wi‑Fi、LINE、Google 等服務的憑證改成 `YOUR_...` placeholder，請勿將個人密碼或 API token 提交到公開 repository。
+
 ## 範例照片與成果說明
 
 以下照片來自本專案的實作與測試過程，涵蓋硬體接線、TFT 顯示、MQTT 與雲端資料服務。
