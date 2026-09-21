@@ -19,3 +19,6 @@ env/
 .DS_Store
 Thumbs.db
 
+# Personal-identifying photos from the local archive
+archive/ESP32實習/成果照片/20260921_110109.jpg
+archive/ESP32實習/成果照片/Screenshot_20260810_160929_LINE.jpg

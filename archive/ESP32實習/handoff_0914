@@ -1,0 +1,248 @@
+# ESP32 專案交接紀錄
+
+## 專案位置
+
+- 工作目錄：`D:\monman\esp32\ESP32實習`
+- 目前主要程式：`32_ili_mqtt_ctrl_page\32_ili_mqtt_ctrl_page.ino`
+- 本檔案為舊 `handoff` 紀錄加上 2026-09-14 最新學習與開發紀錄的合併版。
+
+## 舊版專案紀錄
+
+### 早期 OLED／ThingSpeak 版本
+
+- 主要程式：`23_dht_light_oled_thingspeak\23_dht_light_oled_thingspeak.ino`
+- 前一版離線 OLED 程式：`22_dht_ligt_oled\22_dht_ligt_oled.ino`
+- DHT11 資料線：GPIO14
+- 光敏電阻：GPIO33（ADC，轉換為 0–100%）
+- OLED SDA：GPIO21
+- OLED SCL：GPIO22
+- OLED 顯示溫度、濕度與亮度。
+- ThingSpeak 欄位：
+  - `field1`：溫度
+  - `field2`：濕度
+  - `field3`：亮度
+- ThingSpeak 上傳週期：15 秒。
+- 舊紀錄曾驗證 HTTP code `200`，並取得 entry id `7`。
+- 舊版最後修改包含溫度 `C`、濕度 `%` 與亮度太陽圖示。
+
+### `27_mqtt_ctrl` 舊版
+
+- 程式：`27_mqtt_ctrl\27_mqtt_ctrl.ino`
+- 使用 OLED 顯示 MQTT 控制狀態。
+- LED 接線：綠燈 GPIO15、黃燈 GPIO2、紅燈 GPIO4。
+- MQTT Broker：`mqttgo.io`，Port `1883`，匿名連線。
+- 感測資料主題：`louis/class305/data`
+- 感測資料格式：`{"temp":25,"humi":65,"light":95}`
+- 每 10 秒發布一次。
+- 三個 LED 控制主題：
+  - `louis/class305/ctrl/gled`
+  - `louis/class305/ctrl/yled`
+  - `louis/class305/ctrl/rled`
+- 使用 MQTT callback 與 JSON 控制 LED。
+- 舊紀錄曾成功燒錄至 COM7，並確認感測資料發布成功。
+
+## 2026-09-14 新增學習與開發紀錄
+
+### 版本演進
+
+- `28_ili9225`：建立 ILI9225 TFT 環境監控儀表板。
+- `30_ili_mqtt`：加入 ILI9225、Wi-Fi、MQTT 感測資料發布與狀態列。
+- `31_ili_mqtt_ctrl`：加入三個 LED MQTT 訂閱主題、callback 與 ArduinoJson。
+- `32_ili_mqtt_ctrl_page`：加入 NTP、GPIO0 換頁、四頁顯示、Gauge 與歷史折線圖。
+
+### 目前硬體接線
+
+#### ILI9225 TFT
+
+- RST：GPIO26
+- RS：GPIO25
+- CS：GPIO16
+- SDI／MOSI：GPIO23
+- CLK／SCK：GPIO18
+- 顯示尺寸：176×220
+
+#### 感測器、LED 與按鍵
+
+- DHT11：GPIO14
+- 光敏電阻：GPIO33（ADC）
+- 綠色 LED：GPIO15
+- 黃色 LED：GPIO2
+- 紅色 LED：GPIO4
+- 換頁按鍵：GPIO0，使用 `INPUT_PULLUP`，按下為 LOW
+
+GPIO0 同時是 ESP32 開機模式腳位，燒錄或重置時避免持續按住。
+
+### Wi-Fi、NTP 與 MQTT
+
+- Wi-Fi SSID：`mon`
+- Wi-Fi 密碼：`YOUR_WIFI_PASSWORD`
+- MQTT Broker：`mqttgo.io`
+- MQTT Port：`1883`
+- MQTT 3.1.1、匿名連線、Client ID 使用亂數產生。
+- 感測資料主題：`louis/class305/data`
+- 感測資料發布週期：10 秒
+- NTP Server：`pool.ntp.org`、`time.nist.gov`
+- 台灣時區：UTC+8
+
+感測資料格式：
+
+```json
+{"temp":25,"humi":65,"light":95}
+```
+
+LED 訂閱主題：
+
+- 綠燈 GPIO15：`louis/class305/ctrl/gled`
+- 黃燈 GPIO2：`louis/class305/ctrl/yled`
+- 紅燈 GPIO4：`louis/class305/ctrl/rled`
+
+LED 控制格式：
+
+```json
+{"gled":"on"}
+```
+
+```json
+{"yled":"off"}
+```
+
+```json
+{"rled":"on"}
+```
+
+程式使用 MQTT callback 接收完整訊息，再使用 ArduinoJson 解析 JSON 並立即更新 LED。
+
+### `32_ili_mqtt_ctrl_page` 四頁畫面
+
+#### P1/4：環境監控首頁
+
+- 顯示溫度、濕度、亮度三張資訊卡。
+- 濕度超過 65% 時，濕度數值閃爍紅色警示。
+- 顯示 Wi-Fi／MQTT 狀態。
+- 最下方顯示 NTP 日期時間，例如：`09/14 Mon 13:20`
+- 日期時間每 10 秒更新一次。
+
+#### P2/4：溫度
+
+- 上半部：10～40°C 溫度 Gauge。
+- 10～20°C：綠色。
+- 20～30°C：黃色。
+- 30～40°C：紅色。
+- 下半部：最近 10 分鐘溫度折線圖。
+- 每 10 秒記錄一筆，最多 60 筆。
+- 溫度資料使用圓點顯示，連接線使用細線。
+
+#### P3/4：濕度
+
+- 上半部：0～100% 濕度 Gauge。
+- 0～40%：黃色，偏乾。
+- 40～70%：綠色，舒適。
+- 70～100%：紅色，偏濕。
+- 下半部：最近 10 分鐘濕度折線圖。
+- 每 10 秒記錄一筆，最多 60 筆。
+
+#### P4/4：亮度
+
+- 上半部：0～100% 亮度 Gauge。
+- 0～30%：藍色，偏暗。
+- 30～70%：黃色，中等。
+- 70～100%：紅色，偏亮。
+- 下半部：最近 10 分鐘亮度折線圖。
+- 每 10 秒記錄一筆，最多 60 筆。
+
+所有 Gauge 使用半圓厚環、中央指針與白色分隔線。折線圖使用 `-10m` 與 `NOW` 標示時間範圍，資料不足時顯示 `DATA n/60`。
+
+### IO0 換頁
+
+- GPIO0 改用硬體中斷 `FALLING` 偵測按下。
+- 主迴圈進行防彈跳。
+- 按一次循環切換：P1/4 → P2/4 → P3/4 → P4/4 → P1/4。
+- 已修正原本輪詢方式可能因 MQTT 等待而漏掉短按的問題。
+
+### 今日完成的畫面改善
+
+- 日期時間字型縮小為單行。
+- Gauge 改為半圓厚環、中央指針與分段分隔線。
+- Gauge 刻度移到色帶外側。
+- 溫度中央顯示目前值與單位。
+- 折線圖標題改為較簡潔的 `TEMP TREND` 等格式。
+- X 軸加入 `-10m` 與 `NOW`。
+- 資料收集不足時顯示 `DATA n/60`。
+- 加強折線圖網格線。
+- 新增頁碼 `P1/4`～`P4/4`。
+- 折線資料改為圓點，連線保持細線。
+- 修正第四頁亮度原本會由上下分區變成單一直線圖的問題。
+- 原因是週期更新誤呼叫舊版單一亮度畫面，已改為持續繪製完整上下分區。
+
+## 使用函式庫
+
+- `TFT_22_ILI9225`
+- `Adafruit_GFX`
+- `SimpleDHT`
+- `ArduinoJson`
+- ESP32 內建 `WiFi`
+- ESP32 內建 `SPI`
+- ESP32 內建 `time`
+
+函式庫位置：`D:\monman\esp32\ESP32實習\libraries`
+
+## 編譯結果
+
+使用 ESP32 Dev Module 編譯成功：
+
+- Flash：約 59%
+- RAM：約 14%
+- 最新程式：`32_ili_mqtt_ctrl_page\32_ili_mqtt_ctrl_page.ino`
+
+Arduino CLI：
+
+```powershell
+$cli='C:\Users\user\AppData\Local\Programs\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe'
+$build='C:\Users\user\AppData\Local\Temp\esp32-build-32-ili-mqtt'
+& $cli compile --fqbn esp32:esp32:esp32 `
+  --libraries 'D:\monman\esp32\ESP32實習\libraries' `
+  --build-path $build `
+  --warnings all `
+  'D:\monman\esp32\ESP32實習\32_ili_mqtt_ctrl_page'
+```
+
+## 燒錄與驗證
+
+燒錄前先確認實際 COM 埠，歷史上曾使用 COM4 與 COM7，不可直接假設：
+
+```powershell
+& $cli upload -p COM7 --fqbn esp32:esp32:esp32 --input-dir $build
+```
+
+若目前不是 COM7，請替換為實際 COM 埠。
+
+序列埠監控器使用 `115200` 鮑率，應看到類似：
+
+```text
+ILI9225 MQTT dashboard started
+WiFi connected, IP: 192.168.x.x
+NTP time synchronization started (UTC+8)
+MQTT connected
+MQTT subscribed:
+Published [louis/class305/data]: {"temp":25,"humi":65,"light":95}
+```
+
+驗證清單：
+
+- TFT 顯示 P1/4。
+- GPIO0 可循環切換四頁。
+- 第一頁顯示正確台灣時間。
+- P2～P4 始終維持上下兩部分。
+- 每 10 秒記錄感測歷史資料。
+- 約 10 分鐘後折線圖逐步填滿。
+- MQTT 感測資料持續發布。
+- 三個 MQTT LED 主題可分別控制對應 LED。
+- Wi-Fi 或 MQTT 斷線後可自動重連。
+
+## 目前狀態與後續工作
+
+- 最新程式已成功編譯。
+- 本日最後修改後，若尚未重新燒錄，ESP32 實機需要重新 upload 才會套用最新版本。
+- 實機展示前建議清潔 TFT 表面並調整拍攝角度，降低灰塵、刮痕與反光影響。
+- 後續開發應以 `32_ili_mqtt_ctrl_page` 為基礎，不要直接從早期 `23`、`27`、`30` 或 `31` 版本延伸。
+

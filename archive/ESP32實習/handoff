@@ -1,0 +1,83 @@
+# ESP32 專案交接紀錄
+
+## 專案位置
+
+- 工作目錄：`D:\monman\esp32\ESP32實習`
+- 主要最新程式：`23_dht_light_oled_thingspeak\23_dht_light_oled_thingspeak.ino`
+- 前一版離線 OLED 程式：`22_dht_ligt_oled\22_dht_ligt_oled.ino`
+
+## 硬體接線
+
+- 開發板：ESP32 Dev Module
+- DHT11 資料線：GPIO14
+- 光敏電阻：GPIO33（ADC，轉換為 0–100%）
+- 0.96 吋 OLED 128×64：SDA GPIO21、SCL GPIO22
+- USB 序列埠通常為 `COM4`
+
+## 已完成內容
+
+- OLED 顯示溫度、濕度及亮度。
+- OLED 使用 `@LOUIS@` 標題、雙欄卡片式版面、溫度計/水滴/太陽圖示。
+- `23_dht_light_oled_thingspeak` 已加入 Wi‑Fi 與 ThingSpeak 上傳功能。
+- ThingSpeak 欄位設定：
+  - `field1`：溫度
+  - `field2`：濕度
+  - `field3`：亮度
+- 上傳週期：15 秒。
+- Wi‑Fi 連線時 OLED 會顯示連線過程、成功狀態及 IP 位址。
+- ThingSpeak 上傳成功時 OLED 右下角顯示 `TS`。
+- 先前已成功驗證 ThingSpeak：HTTP code `200`，回應 entry id `7`。
+
+## 目前最新版最後修改
+
+- 溫度數值後加入單位 `C`。
+- 濕度數值後加入單位 `%`。
+- 亮度文字前加入較明顯的太陽圖示。
+- 修改檔案：`23_dht_light_oled_thingspeak\23_dht_light_oled_thingspeak.ino`
+
+## 尚未完成事項
+
+- 上述最後修改後的版本尚未完成最後一次編譯與上傳；上一輪編譯/上傳操作被中斷。
+- 目前沒有殘留的 `arduino-cli` 或 `esptool` 背景程序。
+- 下一步應重新編譯並上傳：
+
+```powershell
+$cli='C:\Users\user\AppData\Local\Programs\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe'
+$build='C:\Users\user\AppData\Local\Temp\esp32-build-23'
+if(Test-Path $build){ Remove-Item -LiteralPath $build -Recurse -Force }
+New-Item -ItemType Directory -Path $build | Out-Null
+& $cli compile --fqbn esp32:esp32:esp32 --libraries '.\libraries' --build-path $build --warnings all '.\23_dht_light_oled_thingspeak'
+& $cli upload -p COM4 --fqbn esp32:esp32:esp32 --input-dir $build
+```
+
+## 設定資料
+
+- Wi‑Fi SSID：`mon`
+- Wi‑Fi 密碼：`YOUR_WIFI_PASSWORD`
+- ThingSpeak API Key：`4CQ31QG4FAQCV3KS`
+
+## 驗證方式
+
+- 開啟 COM4，鮑率 `115200`。
+- 應看到類似：`Temperature: 28, humidity: 40 %, brightness: 15 %`。
+- 每 15 秒應看到：`ThingSpeak HTTP code: 200, response: <entry id>`。
+
+## 2026-08-31 最新進度：27_mqtt_ctrl
+
+- 最新程式：`27_mqtt_ctrl\27_mqtt_ctrl.ino`
+- 保留原本硬體接線：DHT11 GPIO14、光敏電阻 GPIO33、OLED SDA GPIO21／SCL GPIO22。
+- 三顆 LED 接線：綠燈 GPIO15、黃燈 GPIO2、紅燈 GPIO4。
+- MQTT Broker：`mqttgo.io`，Port `1883`，匿名連線，Client ID 使用亂數產生。
+- 溫度、濕度、亮度發布主題：`louis/class305/data`
+- 感測資料格式：`{"temp":25,"humi":65,"light":95}`，每 10 秒發布一次。
+- 三個 LED 控制主題：
+  - `louis/class305/ctrl/gled`：使用 `{"gled":"on"}` 或 `{"gled":"off"}` 控制 GPIO15 綠燈／電燈。
+  - `louis/class305/ctrl/yled`：使用 `{"yled":"on"}` 或 `{"yled":"off"}` 控制 GPIO2 黃燈／風扇。
+  - `louis/class305/ctrl/rled`：使用 `{"rled":"on"}` 或 `{"rled":"off"}` 控制 GPIO4 紅燈／除濕機。
+- 控制端使用 callback 機制處理收到的 JSON，OLED 會顯示收到的控制指令 1 秒。
+- 已修正 MQTT 接收封包可能分段造成 JSON 不完整的問題，現在會等待完整封包後再交給 callback 解析。
+- 2026-08-31 已成功編譯：Flash 約 57%、RAM 約 13%。
+- 2026-08-31 已成功燒錄至 `COM7`（CH340），ESP32 自動重置完成。
+- 上傳後已確認感測資料發布成功，例如：`{"temp":29,"humi":55,"light":15}`。
+- 測試控制時，Topic 與 JSON 欄位名稱必須一一對應，且 `on`／`off` 使用小寫。
+

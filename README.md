@@ -79,6 +79,10 @@ louis/class305/ctrl/rled
 
 公開版本已將 Wi‑Fi、LINE、Google 等服務的憑證改成 `YOUR_...` placeholder，請勿將個人密碼或 API token 提交到公開 repository。
 
+## D 槽完整資料封存
+
+原始工作區 `D:\monman\esp32\ESP32實習` 的完整資料已保留在 [`archive/ESP32實習`](archive/ESP32實習)；包含原始範例資料夾、Arduino libraries、報告文件、交接紀錄、成果圖與報告產出資料。為了公開安全，封存內的程式與文字紀錄已移除已知憑證，並排除含個人識別資訊的兩張照片；原始檔仍保留在本機 D 槽。
+
 ## 範例照片與成果說明
 
 以下照片來自本專案的實作與測試過程，涵蓋硬體接線、TFT 顯示、MQTT 與雲端資料服務。
