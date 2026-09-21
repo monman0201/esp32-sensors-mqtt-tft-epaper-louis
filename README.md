@@ -71,17 +71,61 @@ louis/class305/ctrl/rled
 
 ## 範例照片與成果說明
 
-README 預計收錄以下實作照片，讓讀者能對照硬體、畫面與雲端結果：
+以下照片來自本專案的實作與測試過程，涵蓋硬體接線、TFT 顯示、MQTT 與雲端資料服務。
 
-| 照片 | 說明 |
-|---|---|
-| ESP32、DHT11、光敏電阻與 OLED 接線 | 展示感測器接線與 OLED 即時數值顯示 |
-| ESP32 與 ILI9225 TFT 儀表板 | 展示首頁、Gauge 與溫度／濕度／亮度趨勢頁 |
-| MQTT Broker 感測資料 | 展示 `louis/class305/data` 收到的 JSON 感測資料 |
-| 三色 LED 控制成果 | 展示 MQTT 指令控制 GPIO15、GPIO2、GPIO4 的實體結果 |
-| 完整裝置運作畫面 | 展示 ESP32、感測器、TFT 與 LED 的整合成果 |
+### 硬體與 TFT 顯示
 
-目前公開 repository 尚未包含上述實拍照片檔；照片檔加入 `docs/images/` 後，會以 Markdown 圖片方式放在本節並附上拍攝情境說明。
+![ESP32 麵包板硬體接線](docs/images/hardware-breadboard.jpg)
+
+ESP32、感測器、OLED、TFT 與三色 LED 的麵包板整合接線。
+
+![TFT 環境監測首頁](docs/images/tft-environment-monitor.jpg)
+
+ILI9225 TFT 顯示溫度、濕度與亮度的環境監測首頁。
+
+![TFT 溫濕度畫面](docs/images/tft-temperature-humidity.jpg)
+
+TFT 顯示即時溫度、濕度與亮度數值，並以顏色區分狀態。
+
+![TFT 警示畫面](docs/images/tft-alert-display.jpg)
+
+當濕度等環境數值達到警示條件時，畫面會以醒目色彩提示。
+
+![TFT 天氣資料畫面](docs/images/tft-weather-display.jpg)
+
+TFT 顯示 Open-Meteo 天氣資料與未來數日預報資訊。
+
+![ESP32 與 TFT 完整裝置](docs/images/complete-device-wiring.jpg)
+
+ESP32、DHT11、光敏電阻、ILI9225 TFT 與 LED 的完整整合測試。
+
+![TFT 裝置運作總覽](docs/images/tft-device-overview.jpg)
+
+裝置運作時的整體畫面，可看到 TFT 即時數值與多個輸出指示燈。
+
+### MQTT、ThingSpeak 與 Google Sheets
+
+![MQTTGO 感測資料](docs/images/mqttgo-sensor-data.jpg)
+
+MQTTGO Broker 收到 `louis/class305/data` 主題發布的 JSON 感測資料。
+
+![ThingSpeak 儀表板](docs/images/thingspeak-dashboard.png)
+
+ThingSpeak 儀表板以 Gauge 與折線圖呈現溫度、濕度及亮度。
+
+![ThingSpeak 上傳結果](docs/images/thingspeak-upload.png)
+
+ThingSpeak 儲存的 305 教室感測資料與歷史圖表。
+
+![Google Sheets 感測資料](docs/images/google-sheets-data.png)
+
+Google Sheets 持續記錄時間戳記、溫度、濕度與亮度欄位。
+
+![Google Sheets 感測圖表](docs/images/google-sheets-chart.png)
+
+Google Sheets 將三種感測值繪製成時間序列圖，方便觀察環境變化。
+
+為保護個人資料，含姓名／學號與個人訊息的照片未放入公開 repository。
 
 ## 注意事項
 
